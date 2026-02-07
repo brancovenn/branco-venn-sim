@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" fill="none">
+  <!-- White background -->
+  <rect width="1200" height="630" fill="#FFFFFF"/>
+  
+  <!-- BV Monogram Logo - centered and scaled -->
+  <g transform="translate(400, 115) scale(3.5)">
+    <!-- V structure: left line and right line (which is also the B stem) -->
+    <path d="M 50 30 L 50 170" stroke="#000000" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 150 30 L 150 170" stroke="#000000" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+    
+    <!-- V bottom convergence point -->
+    <path d="M 50 170 L 150 170" stroke="#000000" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+    
+    <!-- B upper loop -->
+    <path d="M 150 30 Q 200 30 200 80 Q 200 100 150 100" stroke="#000000" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    
+    <!-- B lower loop -->
+    <path d="M 150 100 Q 200 100 200 150 Q 200 170 150 170" stroke="#000000" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  </g>
+</svg>

@@ -4,6 +4,47 @@
 
 @layer base {
   :root {
+    --background: 0 12% 97%;
+    --foreground: 0 0% 0%;
+
+    --card: 0 0% 98%;
+    --card-foreground: 0 0% 0%;
+
+    --popover: 0 0% 98%;
+    --popover-foreground: 0 0% 0%;
+
+    --primary: 0 0% 0%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 0%;
+
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+
+    --accent: 0 0% 96%;
+    --accent-foreground: 0 0% 0%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 0 0% 40%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 0 0% 0%;
+    --sidebar-primary: 0 0% 0%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 96%;
+    --sidebar-accent-foreground: 0 0% 0%;
+    --sidebar-border: 0 0% 90%;
+    --sidebar-ring: 0 0% 40%;
+  }
+
+  .dark {
     --background: 0 0% 0%;
     --foreground: 0 0% 100%;
 
@@ -31,8 +72,6 @@
     --border: 0 0% 18%;
     --input: 0 0% 18%;
     --ring: 0 0% 40%;
-
-    --radius: 0.5rem;
 
     --sidebar-background: 0 0% 3%;
     --sidebar-foreground: 0 0% 100%;
@@ -79,20 +118,20 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: hsl(0 0% 0%);
+  background: hsl(var(--background));
 }
 
 ::-webkit-scrollbar-thumb {
-  background: hsl(0 0% 20%);
+  background: hsl(var(--muted-foreground) / 0.3);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(0 0% 30%);
+  background: hsl(var(--muted-foreground) / 0.5);
 }
 
 /* Selection color */
 ::selection {
-  background: hsl(0 0% 100% / 0.15);
-  color: hsl(0 0% 100%);
+  background: hsl(var(--primary) / 0.2);
+  color: hsl(var(--primary-foreground));
 }

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <!-- BV Monogram Logo -->
+  <!-- V structure: left vertical line -->
+  <path d="M 40 20 L 40 180" stroke="#000000" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- V right line / B stem (parallel to left, converges at bottom) -->
+  <path d="M 120 20 L 120 180" stroke="#000000" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- V bottom convergence (connecting the two V lines) -->
+  <path d="M 40 180 L 120 180" stroke="#000000" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- B upper loop (from top of right stem, curves out and back to middle) -->
+  <path d="M 120 20 Q 180 20 180 70 Q 180 100 120 100" stroke="#000000" stroke-width="22" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  
+  <!-- B lower loop (from middle of right stem, curves out and back to bottom) -->
+  <path d="M 120 100 Q 180 100 180 150 Q 180 180 120 180" stroke="#000000" stroke-width="22" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</svg>

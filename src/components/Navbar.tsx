@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
+import Logo from "./Logo";
+import ThemeToggle from "./ThemeToggle";
 
 const navLinks = [
   { label: "Home", path: "/" },
@@ -37,8 +39,8 @@ const Navbar = () => {
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5 md:px-12">
           {/* Logo */}
-          <Link to="/" className="font-logo text-sm md:text-base font-light tracking-[0.3em]">
-            Branco Venn
+          <Link to="/" className="flex items-center">
+            <Logo className="cursor-pointer w-12 h-12 md:w-16 md:h-16" />
           </Link>
 
           {/* Desktop Links */}
@@ -58,14 +60,19 @@ const Navbar = () => {
             ))}
           </div>
 
-          {/* Mobile Menu Toggle */}
-          <button
-            className="md:hidden relative z-50"
-            onClick={() => setMobileOpen(!mobileOpen)}
-            aria-label="Toggle menu"
-          >
-            {mobileOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+          {/* Desktop: Theme Toggle and Mobile Menu Toggle */}
+          <div className="flex items-center gap-4">
+            <div className="hidden md:block">
+              <ThemeToggle />
+            </div>
+            <button
+              className="md:hidden relative z-50"
+              onClick={() => setMobileOpen(!mobileOpen)}
+              aria-label="Toggle menu"
+            >
+              {mobileOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
         </div>
       </motion.nav>
 
@@ -100,6 +107,14 @@ const Navbar = () => {
                   </Link>
                 </motion.div>
               ))}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: navLinks.length * 0.1 + 0.1 }}
+                className="mt-4"
+              >
+                <ThemeToggle />
+              </motion.div>
             </div>
           </motion.div>
         )}

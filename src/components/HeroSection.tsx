@@ -1,8 +1,34 @@
 import { motion } from "framer-motion";
 import { Download, Smartphone } from "lucide-react";
+import { useLocation } from "react-router-dom";
+import { useRef } from "react";
 import heroImage from "@/assets/hero-gamepad.png";
 
 const HeroSection = () => {
+  const location = useLocation();
+  const previousPathRef = useRef<string | null>(null);
+  
+  // Detect if we're navigating from another page
+  // location.key changes on navigation, 'default' on initial load/refresh
+  // Also check if we came from a different path
+  const isNavigating = location.key !== 'default' && 
+                       location.key !== null && 
+                       previousPathRef.current !== null && 
+                       previousPathRef.current !== location.pathname;
+  
+  // Update previous path for next render
+  previousPathRef.current = location.pathname;
+  
+  // CASE 1: Initial page load/refresh (isNavigating = false)
+  //   → Use full delays (4.4s, 4.6s, 5.0s, 5.2s) to wait for intro animation
+  // CASE 2: Navigating between pages (isNavigating = true)
+  //   → Use instant delays (0s, 0.05s, 0.1s, 0.15s) for immediate appearance
+  const isInitialPageLoad = !isNavigating;
+  const delay = isInitialPageLoad ? 4.4 : 0;
+  const delay2 = isInitialPageLoad ? 4.6 : 0.05;
+  const delay3 = isInitialPageLoad ? 5.0 : 0.1;
+  const delay4 = isInitialPageLoad ? 5.2 : 0.15;
+
   return (
     <section className="relative h-screen w-full overflow-hidden">
       {/* Background product image */}
@@ -33,7 +59,7 @@ const HeroSection = () => {
                 animate={{ x: 0, opacity: 1 }}
                 transition={{
                   duration: 1,
-                  delay: 4.4,
+                  delay: delay,
                   ease: [0.25, 0.1, 0.25, 1],
                 }}
               >
@@ -45,7 +71,7 @@ const HeroSection = () => {
                 animate={{ x: 0, opacity: 1 }}
                 transition={{
                   duration: 1,
-                  delay: 4.6,
+                  delay: delay2,
                   ease: [0.25, 0.1, 0.25, 1],
                 }}
               >
@@ -58,7 +84,7 @@ const HeroSection = () => {
               className="mb-10 text-lg md:text-xl font-light text-muted-foreground tracking-wide"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 5.0 }}
+              transition={{ duration: 0.8, delay: delay3 }}
             >
               Turn Your Phone Into a PC Controller
             </motion.p>
@@ -68,7 +94,7 @@ const HeroSection = () => {
               className="flex flex-col sm:flex-row gap-4"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 5.2 }}
+              transition={{ duration: 0.8, delay: delay4 }}
             >
               <motion.a
                 href="#downloads"
