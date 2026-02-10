@@ -20,14 +20,14 @@ const HeroSection = () => {
   previousPathRef.current = location.pathname;
   
   // CASE 1: Initial page load/refresh (isNavigating = false)
-  //   → Use full delays (4.4s, 4.6s, 5.0s, 5.2s) to wait for intro animation
+  //   → Use full delays (5.0s, 5.2s, 5.6s, 5.8s) to wait for intro animation
   // CASE 2: Navigating between pages (isNavigating = true)
   //   → Use instant delays (0s, 0.05s, 0.1s, 0.15s) for immediate appearance
   const isInitialPageLoad = !isNavigating;
-  const delay = isInitialPageLoad ? 4.4 : 0;
-  const delay2 = isInitialPageLoad ? 4.6 : 0.05;
-  const delay3 = isInitialPageLoad ? 5.0 : 0.1;
-  const delay4 = isInitialPageLoad ? 5.2 : 0.15;
+  const delay = isInitialPageLoad ? 5.0 : 0;
+  const delay2 = isInitialPageLoad ? 5.2 : 0.05;
+  const delay3 = isInitialPageLoad ? 5.6 : 0.1;
+  const delay4 = isInitialPageLoad ? 5.8 : 0.15;
 
   return (
     <section className="relative h-screen w-full overflow-hidden">
