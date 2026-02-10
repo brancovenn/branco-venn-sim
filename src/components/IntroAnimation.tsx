@@ -75,7 +75,7 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
         transition={{ duration: contentFadeSec, ease: "easeInOut" }}
       >
             <motion.div
-              className="relative flex flex-row items-center gap-6 md:gap-8"
+              className="relative flex flex-row items-center gap-3 sm:gap-6 md:gap-8 px-4 sm:px-6 max-w-full"
               layout
               transition={{ layout: { duration: 0.6, ease: "easeInOut" } }}
             >
@@ -83,7 +83,7 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
               <span
                 ref={measureRef}
                 aria-hidden
-                className="pointer-events-none absolute left-0 top-0 opacity-0 font-intro text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-light tracking-[0.12em] whitespace-nowrap"
+                className="pointer-events-none absolute left-0 top-0 opacity-0 font-intro text-3xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-light tracking-[0.08em] sm:tracking-[0.12em] whitespace-nowrap"
               >
                 {TYPING_TEXT}
               </span>
@@ -97,13 +97,13 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
                 <img
                   src="/BV.svg"
                   alt="Branco Venn"
-                  className="h-28 sm:h-32 md:h-36 lg:h-40 xl:h-44 w-auto object-contain dark:invert"
+                  className="h-16 sm:h-28 md:h-36 lg:h-40 xl:h-44 w-auto object-contain dark:invert"
                 />
               </motion.div>
 
               {/* Text: typing reveal from left to right (character-by-character feel) */}
               <motion.div
-                className="overflow-hidden whitespace-nowrap font-intro text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-light tracking-[0.12em]"
+                className="overflow-hidden whitespace-nowrap font-intro text-3xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-light tracking-[0.08em] sm:tracking-[0.12em]"
                 initial={{ width: 0, opacity: 0 }}
                 animate={
                   typingStarted

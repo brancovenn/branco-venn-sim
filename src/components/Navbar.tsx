@@ -35,7 +35,7 @@ const Navbar = () => {
         }`}
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 4.2 }}
+        transition={{ duration: 0.6, delay: 4.0 }}
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5 md:px-12">
           {/* Logo */}
