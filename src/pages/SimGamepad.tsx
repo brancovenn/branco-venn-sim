@@ -82,7 +82,8 @@ const SimGamepad = ({ isInitialVisit = false }: SimGamepadProps) => {
                             className="flex flex-col sm:flex-row gap-4"
                         >
                             <a
-                                href="#download-desktop"
+                                href="https://brancovenn.com/downloads/sim-gamepad.exe"
+                                download
                                 className="inline-flex items-center justify-center gap-3 rounded-lg bg-primary px-8 py-4 text-lg font-medium text-primary-foreground shadow-2xl shadow-primary/20 transition-all hover:scale-105 active:scale-95"
                             >
                                 <Download size={20} />
