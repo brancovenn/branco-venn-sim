@@ -12,11 +12,14 @@ const COLORS = [
 interface Particle {
     x: number;
     y: number;
-    angle: number;
-    speed: number;
-    length: number;
+    vx: number;
+    vy: number;
+    baseAngle: number;
+    driftSpeed: number;
     color: string;
-    opacity: number;
+    size: number;
+    baseOpacity: number;
+    phase: number; // for soft sine wave pulsing
 }
 
 const ParticleBackground = () => {
@@ -29,85 +32,157 @@ const ParticleBackground = () => {
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
 
-        // Set canvas to full window size
         let width = window.innerWidth;
         let height = window.innerHeight;
         canvas.width = width;
         canvas.height = height;
 
         const particles: Particle[] = [];
-        const particleCount = Math.floor((width * height) / 8000); // Responsive particle density
+        const particleCount = Math.floor((width * height) / 4000);
 
-        // Initialize particles
+        // Mouse tracking for fluid wake
+        let mouseX = -1000;
+        let mouseY = -1000;
+        let prevMouseX = -1000;
+        let prevMouseY = -1000;
+
+        const handleMouseMove = (e: MouseEvent) => {
+            if (prevMouseX === -1000) {
+                prevMouseX = e.clientX;
+                prevMouseY = e.clientY;
+            } else {
+                prevMouseX = mouseX;
+                prevMouseY = mouseY;
+            }
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        };
+
+        const handleMouseLeave = () => {
+            mouseX = -1000;
+            mouseY = -1000;
+            prevMouseX = -1000;
+            prevMouseY = -1000;
+        };
+
+        window.addEventListener('mousemove', handleMouseMove);
+        document.body.addEventListener('mouseleave', handleMouseLeave);
+
         for (let i = 0; i < particleCount; i++) {
-            // Random position
             const x = Math.random() * width;
             const y = Math.random() * height;
 
-            // Flow generally outwards or in a gentle diagonal
-            // Let's make them flow radiating from the bottom-left roughly
+            // Base flow direction (gentle diagonal)
             const dx = x - (-width * 0.2);
             const dy = y - (height * 1.2);
-            const baseAngle = Math.atan2(dy, dx);
-
-            // Add some noise to the angle
-            const angle = baseAngle + (Math.random() - 0.5) * 0.5;
+            const baseAngle = Math.atan2(dy, dx) + (Math.random() - 0.5) * 0.5;
 
             particles.push({
                 x,
                 y,
-                angle,
-                speed: 0.2 + Math.random() * 0.5, // Slow, drifting speed
-                length: 2 + Math.random() * 6, // Mix of dots and small dashes
+                vx: 0,
+                vy: 0,
+                baseAngle,
+                driftSpeed: 0.2 + Math.random() * 0.5,
                 color: COLORS[Math.floor(Math.random() * COLORS.length)],
-                opacity: 0.3 + Math.random() * 0.7,
+                size: 1 + Math.random() * 2.5,
+                baseOpacity: 0.15 + Math.random() * 0.6,
+                phase: Math.random() * Math.PI * 2,
             });
         }
 
         let animationFrameId: number;
+        let time = 0;
 
         const render = () => {
-            // Clear canvas
+            // Keep a tiny bit of trailing for extra fluid smoothness, mostly clear
+            ctx.fillStyle = 'rgba(0, 0, 0, 1)'; // Solid clear to prevent smearing too much
             ctx.clearRect(0, 0, width, height);
 
-            // Draw and update particles
-            particles.forEach(p => {
-                // Simple trail/dash drawing oriented exactly in the direction of movement
-                ctx.beginPath();
-                const startX = p.x;
-                const startY = p.y;
-                const endX = p.x + Math.cos(p.angle) * p.length;
-                const endY = p.y + Math.sin(p.angle) * p.length;
+            time += 0.05;
 
-                ctx.moveTo(startX, startY);
-                ctx.lineTo(endX, endY);
+            // Calculate exact mouse velocity (wake speed)
+            const mouseVx = mouseX - prevMouseX;
+            const mouseVy = mouseY - prevMouseY;
+            const mouseSpeed = Math.sqrt(mouseVx * mouseVx + mouseVy * mouseVy);
+
+            // Constantly decay prevMouse to mouse so velocity hits 0 when stopped
+            prevMouseX += (mouseX - prevMouseX) * 0.3;
+            prevMouseY += (mouseY - prevMouseY) * 0.3;
+
+            particles.forEach((p) => {
+                // Determine base gentle drifting direction
+                const currentAngle = p.baseAngle + Math.sin(time * 0.5 + p.phase) * 0.3;
+
+                // Slowly pull velocity back to the base drift
+                const targetVx = Math.cos(currentAngle) * p.driftSpeed;
+                const targetVy = Math.sin(currentAngle) * p.driftSpeed;
+
+                // Add soft fluid friction to return to normal
+                p.vx += (targetVx - p.vx) * 0.04;
+                p.vy += (targetVy - p.vy) * 0.04;
+
+                // Mouse interaction - Fluid Wave / Wake
+                if (mouseX > 0) {
+                    const dx = p.x - mouseX;
+                    const dy = p.y - mouseY;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    const interactionRadius = 250;
+
+                    if (dist < interactionRadius) {
+                        // The closer, the stronger the force
+                        const force = Math.pow((interactionRadius - dist) / interactionRadius, 1.5);
+
+                        // 1. Radial push (gently push away from cursor like a bubble)
+                        const repelPower = 1.5;
+                        p.vx += (dx / dist) * force * repelPower;
+                        p.vy += (dy / dist) * force * repelPower;
+
+                        // 2. Wake drag (pull particles along with the swiping motion)
+                        if (mouseSpeed > 0) {
+                            const clampSpeed = Math.min(mouseSpeed, 50); // prevent crazy jumps
+                            p.vx += (mouseVx / clampSpeed) * force * 1.0;
+                            p.vy += (mouseVy / clampSpeed) * force * 1.0;
+                        }
+                    }
+                }
+
+                // Apply velocity to position
+                p.x += p.vx;
+                p.y += p.vy;
+
+                // Screen wrapping
+                if (p.x < -50) p.x = width + 50;
+                else if (p.x > width + 50) p.x = -50;
+                if (p.y < -50) p.y = height + 50;
+                else if (p.y > height + 50) p.y = -50;
+
+                // Render particle as a streak reflecting its true velocity
+                // This creates natural looking "dashes" that stretch when excited and shrink when calm
+                ctx.beginPath();
+
+                // Minimum trail size so they are visible even when resting
+                let lookBackX = p.vx * 3.5;
+                let lookBackY = p.vy * 3.5;
+                const currentSpd = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
+
+                if (currentSpd < 0.5) {
+                    lookBackX = Math.cos(currentAngle) * 2;
+                    lookBackY = Math.sin(currentAngle) * 2;
+                }
+
+                ctx.moveTo(p.x - lookBackX, p.y - lookBackY);
+                ctx.lineTo(p.x, p.y);
 
                 ctx.strokeStyle = p.color;
-                ctx.globalAlpha = p.opacity;
-                ctx.lineWidth = 1.5;
+
+                // Briefly glow brighter when moving very fast in the wave
+                const intensity = Math.min(1, currentSpd / 5);
+                ctx.globalAlpha = p.baseOpacity + intensity * 0.4;
+
+                ctx.lineWidth = p.size;
                 ctx.lineCap = 'round';
                 ctx.stroke();
-
-                // Update position
-                p.x += Math.cos(p.angle) * p.speed;
-                p.y += Math.sin(p.angle) * p.speed;
-
-                // Wrap around screen bounds smoothly
-                if (p.x < -10) {
-                    p.x = width + 10;
-                    p.y = Math.random() * height;
-                } else if (p.x > width + 10) {
-                    p.x = -10;
-                    p.y = Math.random() * height;
-                }
-
-                if (p.y < -10) {
-                    p.y = height + 10;
-                    p.x = Math.random() * width;
-                } else if (p.y > height + 10) {
-                    p.y = -10;
-                    p.x = Math.random() * width;
-                }
             });
 
             animationFrameId = requestAnimationFrame(render);
@@ -125,6 +200,8 @@ const ParticleBackground = () => {
         window.addEventListener('resize', handleResize);
 
         return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+            document.body.removeEventListener('mouseleave', handleMouseLeave);
             window.removeEventListener('resize', handleResize);
             cancelAnimationFrame(animationFrameId);
         };
