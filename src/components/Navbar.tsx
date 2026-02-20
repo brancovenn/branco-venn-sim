@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { Menu, X, ArrowRight } from "lucide-react";
 import Logo from "./Logo";
 import ThemeToggle from "./ThemeToggle";
 import iconImage from "@/assets/icon.png";
@@ -17,7 +17,21 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [productDropdownOpen, setProductDropdownOpen] = useState(false);
+  const dropdownTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const location = useLocation();
+
+  const handleMouseEnter = () => {
+    if (dropdownTimeoutRef.current) {
+      clearTimeout(dropdownTimeoutRef.current);
+    }
+    setProductDropdownOpen(true);
+  };
+
+  const handleMouseLeave = () => {
+    dropdownTimeoutRef.current = setTimeout(() => {
+      setProductDropdownOpen(false);
+    }, 150);
+  };
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 40);
@@ -42,7 +56,7 @@ const Navbar = () => {
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5 md:px-12">
           {/* Logo */}
           <Link to="/" className="flex items-center">
-            <Logo className="cursor-pointer w-12 h-12 md:w-16 md:h-16" />
+            <Logo className="cursor-pointer w-20 h-20 md:w-20 md:h-20" />
           </Link>
 
           {/* Desktop Links */}
@@ -51,9 +65,9 @@ const Navbar = () => {
               link.label === "Product" ? (
                 <div
                   key={link.path}
-                  className="relative"
-                  onMouseEnter={() => setProductDropdownOpen(true)}
-                  onMouseLeave={() => setProductDropdownOpen(false)}
+                  className="relative h-full flex items-center"
+                  onMouseEnter={handleMouseEnter}
+                  onMouseLeave={handleMouseLeave}
                 >
                   <button className={`flex outline-none items-center gap-1 text-sm font-light tracking-widest uppercase transition-opacity duration-300 hover:opacity-100 ${location.pathname.startsWith('/product') ? "opacity-100" : "opacity-50"}`}>
                     {link.label}
@@ -61,32 +75,75 @@ const Navbar = () => {
                   <AnimatePresence>
                     {productDropdownOpen && (
                       <motion.div
-                        initial={{ opacity: 0, y: 15, filter: "blur(4px)" }}
+                        initial={{ opacity: 0, y: -10, filter: "blur(4px)" }}
                         animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                        exit={{ opacity: 0, y: 10, filter: "blur(2px)", transition: { duration: 0.15 } }}
+                        exit={{ opacity: 0, y: -5, filter: "blur(2px)", transition: { duration: 0.15 } }}
                         transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
-                        className="absolute top-full left-1/2 -translate-x-1/2 pt-2"
+                        className="fixed top-[72px] left-0 w-screen pt-2 z-50 pointer-events-auto"
                       >
-                        {/* The `pt-2` creates a transparent invisible hover bridge, preventing the menu from closing when moving mouse down */}
-                        <div className="w-56 bg-background/30 backdrop-blur-2xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] rounded-2xl p-2.5 overflow-hidden flex flex-col relative before:absolute before:inset-0 before:bg-gradient-to-b before:from-white/5 before:to-transparent before:pointer-events-none before:rounded-2xl">
-                          <Link
-                            to="/product"
-                            className="w-full tracking-widest text-sm uppercase px-4 py-3.5 rounded-xl hover:bg-white/10 transition-colors duration-300 z-10 font-medium text-foreground relative group overflow-hidden"
-                            onClick={() => setProductDropdownOpen(false)}
-                          >
-                            <span className="relative z-10">Overview</span>
-                          </Link>
+                        {/* 
+                          The container itself spans the whole screen.
+                          We limit the inner content area (max-w-7xl) so it aligns with the navbar.
+                        */}
+                        <div className="w-full bg-background/80 backdrop-blur-[48px] shadow-2xl relative">
+                          {/* Inner container to center the content like the Navbar does */}
+                          <div className="max-w-7xl mx-auto px-6 py-10 flex flex-row justify-between relative">
 
-                          <div className="h-[1px] w-full bg-border/50 my-1" />
+                            {/* Left Panel - Header / Description */}
+                            <div className="w-[40%] flex flex-col justify-start">
+                              <h3 className="text-2xl font-medium tracking-wider text-foreground mb-4 font-brand">Product Ecosystem</h3>
+                              <p className="text-base text-foreground/70 font-light leading-relaxed max-w-sm">
+                                Everything you need to elevate your simulation experience and seamlessly integrate with your rig.
+                              </p>
+                            </div>
 
-                          <Link
-                            to="/product/sim-gamepad"
-                            className="w-full tracking-widest text-sm uppercase px-4 py-3.5 rounded-xl hover:bg-white/10 transition-colors duration-300 z-10 font-bold text-primary flex items-center justify-between group"
-                            onClick={() => setProductDropdownOpen(false)}
-                          >
-                            <span>Sim Gamepad</span>
-                            <img src={iconImage} alt="Sim Gamepad Logo" className="w-7 h-7 object-contain group-hover:scale-110 transition-transform opacity-80 group-hover:opacity-100" />
-                          </Link>
+                            {/* Divider line */}
+                            <div className="absolute left-[45%] top-10 bottom-10 w-px bg-white/10 hidden md:block" />
+
+                            {/* Right Panel - Links */}
+                            <div className="w-[50%] grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <Link
+                                to="/product"
+                                className="group flex flex-row items-center justify-between p-5 rounded-2xl hover:bg-white/5 border border-transparent hover:border-white/10 transition-all duration-300"
+                                onClick={() => setProductDropdownOpen(false)}
+                              >
+                                {/* Text Container */}
+                                <div className="flex flex-col flex-1 pr-4">
+                                  <span className="font-semibold text-lg tracking-widest uppercase text-foreground mb-2">Overview</span>
+                                  <span className="text-sm text-foreground/50 font-light tracking-wide leading-relaxed">
+                                    Explore our entire hardware ecosystem and tech specs.
+                                  </span>
+                                </div>
+
+                                {/* Icon Container - vertically centered */}
+                                <div className="flex-shrink-0 flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/5 border border-white/10 group-hover:bg-primary/20 group-hover:border-primary/50 transition-all">
+                                  <ArrowRight className="w-5 h-5 opacity-50 group-hover:opacity-100 transition-all text-foreground group-hover:text-primary" />
+                                </div>
+                              </Link>
+
+                              <Link
+                                to="/product/sim-gamepad"
+                                className="group flex flex-row items-center justify-between p-5 rounded-2xl hover:bg-white/5 border border-transparent hover:border-white/10 transition-all duration-300"
+                                onClick={() => setProductDropdownOpen(false)}
+                              >
+                                {/* Text Container */}
+                                <div className="flex flex-col flex-1 pr-4">
+                                  <span className="font-bold text-lg tracking-widest uppercase text-primary mb-2">Sim Gamepad</span>
+                                  <span className="text-sm text-foreground/50 font-light tracking-wide leading-relaxed">
+                                    Turn your device into a powerful virtual button box map.
+                                  </span>
+                                </div>
+
+                                {/* Icon Container - vertically centered */}
+                                <div className="flex-shrink-0">
+                                  <img src={iconImage} alt="Sim Gamepad Logo" className="w-10 h-10 md:w-12 md:h-12 object-contain group-hover:scale-110 transition-transform opacity-80 group-hover:opacity-100 drop-shadow-lg" />
+                                </div>
+                              </Link>
+                            </div>
+                          </div>
+
+                          {/* Bottom subtle gradient glow effect */}
+                          <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
                         </div>
                       </motion.div>
                     )}
