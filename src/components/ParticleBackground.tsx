@@ -93,22 +93,31 @@ const ParticleBackground = () => {
 
         let animationFrameId: number;
         let time = 0;
+        let lastTime: number | null = null;
 
-        const render = () => {
+        const render = (timestamp: number) => {
+            if (!lastTime) lastTime = timestamp;
+            let dt = timestamp - lastTime;
+            // Prevent massive jumps if tab was hidden (limit max equivalent dropped frames)
+            if (dt > 200) dt = 16.666;
+            const dtMod = dt / 16.666; // Multiplier: 1.0 at 60Hz, 0.5 at 120Hz
+            lastTime = timestamp;
+
             // Keep a tiny bit of trailing for extra fluid smoothness, mostly clear
             ctx.fillStyle = 'rgba(0, 0, 0, 1)'; // Solid clear to prevent smearing too much
             ctx.clearRect(0, 0, width, height);
 
-            time += 0.05;
+            time += 0.05 * dtMod;
 
             // Calculate exact mouse velocity (wake speed)
-            const mouseVx = mouseX - prevMouseX;
-            const mouseVy = mouseY - prevMouseY;
+            const mouseVx = (mouseX - prevMouseX) / dtMod;
+            const mouseVy = (mouseY - prevMouseY) / dtMod;
             const mouseSpeed = Math.sqrt(mouseVx * mouseVx + mouseVy * mouseVy);
 
             // Constantly decay prevMouse to mouse so velocity hits 0 when stopped
-            prevMouseX += (mouseX - prevMouseX) * 0.3;
-            prevMouseY += (mouseY - prevMouseY) * 0.3;
+            const decay = Math.min(1, 0.3 * dtMod);
+            prevMouseX += (mouseX - prevMouseX) * decay;
+            prevMouseY += (mouseY - prevMouseY) * decay;
 
             particles.forEach((p) => {
                 // Determine base gentle drifting direction
@@ -119,8 +128,9 @@ const ParticleBackground = () => {
                 const targetVy = Math.sin(currentAngle) * p.driftSpeed;
 
                 // Add soft fluid friction to return to normal
-                p.vx += (targetVx - p.vx) * 0.04;
-                p.vy += (targetVy - p.vy) * 0.04;
+                const friction = Math.min(1, 0.04 * dtMod);
+                p.vx += (targetVx - p.vx) * friction;
+                p.vy += (targetVy - p.vy) * friction;
 
                 // Mouse interaction - Fluid Wave / Wake
                 if (mouseX > 0) {
@@ -135,21 +145,21 @@ const ParticleBackground = () => {
 
                         // 1. Radial push (gently push away from cursor like a bubble)
                         const repelPower = 1.5;
-                        p.vx += (dx / dist) * force * repelPower;
-                        p.vy += (dy / dist) * force * repelPower;
+                        p.vx += (dx / dist) * force * repelPower * dtMod;
+                        p.vy += (dy / dist) * force * repelPower * dtMod;
 
                         // 2. Wake drag (pull particles along with the swiping motion)
                         if (mouseSpeed > 0) {
                             const clampSpeed = Math.min(mouseSpeed, 50); // prevent crazy jumps
-                            p.vx += (mouseVx / clampSpeed) * force * 1.0;
-                            p.vy += (mouseVy / clampSpeed) * force * 1.0;
+                            p.vx += (mouseVx / clampSpeed) * force * 1.0 * dtMod;
+                            p.vy += (mouseVy / clampSpeed) * force * 1.0 * dtMod;
                         }
                     }
                 }
 
                 // Apply velocity to position
-                p.x += p.vx;
-                p.y += p.vy;
+                p.x += p.vx * dtMod;
+                p.y += p.vy * dtMod;
 
                 // Screen wrapping
                 if (p.x < -50) p.x = width + 50;
@@ -188,7 +198,7 @@ const ParticleBackground = () => {
             animationFrameId = requestAnimationFrame(render);
         };
 
-        render();
+        animationFrameId = requestAnimationFrame(render);
 
         const handleResize = () => {
             width = window.innerWidth;
