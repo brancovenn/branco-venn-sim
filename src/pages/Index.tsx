@@ -4,10 +4,14 @@ import MobileAppSection from "@/components/MobileAppSection";
 import SocialMediaSection from "@/components/SocialMediaSection";
 import PageTransition from "@/components/PageTransition";
 
-const Index = () => {
+interface IndexProps {
+  isInitialVisit?: boolean;
+}
+
+const Index = ({ isInitialVisit = false }: IndexProps) => {
   return (
     <PageTransition>
-      <HeroSection />
+      <HeroSection isInitialVisit={isInitialVisit} />
       <DownloadSection />
       <MobileAppSection />
       <SocialMediaSection />

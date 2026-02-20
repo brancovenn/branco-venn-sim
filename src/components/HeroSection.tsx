@@ -1,33 +1,24 @@
 import { motion } from "framer-motion";
 import { Download, Smartphone } from "lucide-react";
-import { useLocation } from "react-router-dom";
 import { useRef } from "react";
 import heroImage from "@/assets/hero-gamepad.png";
+import ParticleBackground from "./ParticleBackground";
 
-const HeroSection = () => {
-  const location = useLocation();
-  const previousPathRef = useRef<string | null>(null);
-  
-  // Detect if we're navigating from another page
-  // location.key changes on navigation, 'default' on initial load/refresh
-  // Also check if we came from a different path
-  const isNavigating = location.key !== 'default' && 
-                       location.key !== null && 
-                       previousPathRef.current !== null && 
-                       previousPathRef.current !== location.pathname;
-  
-  // Update previous path for next render
-  previousPathRef.current = location.pathname;
-  
-  // CASE 1: Initial page load/refresh (isNavigating = false)
-  //   → Use full delays (4.5s, 4.7s, 5.1s, 5.3s) to wait for intro animation
-  // CASE 2: Navigating between pages (isNavigating = true)
-  //   → Use instant delays (0s, 0.05s, 0.1s, 0.15s) for immediate appearance
-  const isInitialPageLoad = !isNavigating;
-  const delay = isInitialPageLoad ? 4.5 : 0;
-  const delay2 = isInitialPageLoad ? 4.7 : 0.05;
-  const delay3 = isInitialPageLoad ? 5.1 : 0.1;
-  const delay4 = isInitialPageLoad ? 5.3 : 0.15;
+interface HeroSectionProps {
+  isInitialVisit?: boolean;
+}
+
+const HeroSection = ({ isInitialVisit = false }: HeroSectionProps) => {
+  // Lock the prop value on mount so framer-motion delays don't abruptly change to 0
+  // when the Intro finishes and App.tsx unmounts it (which sets isInitialVisit to false).
+  const lockedInitialVisit = useRef(isInitialVisit).current;
+
+  // CASE 1: Initial page load (locked is true) -> full 4.5s intro wait
+  // CASE 2: Navigating away and back -> instant 0s delay
+  const delay = lockedInitialVisit ? 4.5 : 0;
+  const delay2 = lockedInitialVisit ? 4.7 : 0.05;
+  const delay3 = lockedInitialVisit ? 5.1 : 0.1;
+  const delay4 = lockedInitialVisit ? 5.3 : 0.15;
 
   return (
     <section className="relative h-screen w-full overflow-hidden">
@@ -46,6 +37,9 @@ const HeroSection = () => {
 
       {/* Bottom vignette */}
       <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
+
+      {/* Colorful Particle Canvas Background */}
+      <ParticleBackground />
 
       {/* Hero content */}
       <div className="relative z-10 flex h-full items-center">
