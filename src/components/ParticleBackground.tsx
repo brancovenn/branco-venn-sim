@@ -83,7 +83,7 @@ const ParticleBackground = () => {
                 vx: 0,
                 vy: 0,
                 baseAngle,
-                driftSpeed: 0.2 + Math.random() * 0.5,
+                driftSpeed: 0.8 + Math.random() * 1.0, // Increased base speed
                 color: COLORS[Math.floor(Math.random() * COLORS.length)],
                 size: 1 + Math.random() * 2.5,
                 baseOpacity: 0.15 + Math.random() * 0.6,
