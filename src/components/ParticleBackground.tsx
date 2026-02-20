@@ -99,8 +99,8 @@ const ParticleBackground = () => {
             if (!lastTime) lastTime = timestamp;
             let dt = timestamp - lastTime;
             // Prevent massive jumps if tab was hidden (limit max equivalent dropped frames)
-            if (dt > 200) dt = 16.666;
-            const dtMod = dt / 16.666; // Multiplier: 1.0 at 60Hz, 0.5 at 120Hz
+            if (dt > 200) dt = 6.944;
+            const dtMod = dt / 6.944; // Multiplier: 1.0 at 144Hz, ~2.4 at 60Hz
             lastTime = timestamp;
 
             // Keep a tiny bit of trailing for extra fluid smoothness, mostly clear
